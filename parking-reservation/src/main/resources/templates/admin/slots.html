@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Manage Slots')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<style>
+    .admin-slots-head {
+        display: grid;
+        grid-template-columns: 100px 1.5fr 100px 80px 100px 120px 140px;
+        background: var(--concrete-light);
+        padding: 12px 22px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--chalk-dim);
+    }
+    .admin-slots-row {
+        display: grid;
+        grid-template-columns: 100px 1.5fr 100px 80px 100px 120px 140px;
+        padding: 14px 22px;
+        align-items: center;
+        border-top: 1px solid #1E1E22;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+    }
+    @media (max-width: 768px) {
+        .admin-slots-head { display: none; }
+        .admin-slots-row { grid-template-columns: 1fr; row-gap: 6px; padding: 16px; }
+    }
+</style>
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h2>Manage Slots</h2>
+        <a th:href="@{/admin/slots/new}" class="add-slot-btn">+ Add Slot</a>
+    </div>
+
+    <div class="kpi-row" style="grid-template-columns: repeat(4, 1fr) !important;">
+        <div class="kpi"><div class="lbl">Total Slots</div><div class="val" th:text="${totalSlots}">142</div></div>
+        <div class="kpi"><div class="lbl">Occupied</div><div class="val red" th:text="${occupiedCount}">58</div></div>
+        <div class="kpi"><div class="lbl">Available</div><div class="val green" th:text="${availableCount}">84</div></div>
+        <div class="kpi"><div class="lbl">Collected Overtime</div><div class="val" style="color:var(--yellow);" th:text="'Rs. ' + ${totalOvertimeCollected}">Rs. 0.00</div></div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <div class="admin-slots-head">
+            <span>Slot</span>
+            <span>Location</span>
+            <span>Base Fare</span>
+            <span>EV Lot</span>
+            <span>Priority</span>
+            <span>Status</span>
+            <span>Actions</span>
+        </div>
+
+        <div class="admin-slots-row" th:each="slot : ${slots}">
+            <span style="font-weight:bold; color:var(--yellow);" th:text="${slot.slotNumber}">A-12</span>
+            <span th:text="${slot.location}">Block A - Level 1</span>
+            <span th:text="'Rs. ' + ${slot.pricePerHour}">Rs. 20</span>
+            
+            <!-- EV and Disability indicator columns -->
+            <span th:text="${slot.evCharging ? '⚡ YES' : 'NO'}" th:style="${slot.evCharging ? 'color:var(--yellow); font-weight:bold;' : 'color:#555;'}">NO</span>
+            <span th:text="${slot.disabilitySlot ? '♿ YES' : 'NO'}" th:style="${slot.disabilitySlot ? 'color:#3b82f6; font-weight:bold;' : 'color:#555;'}">NO</span>
+
+            <span>
+                <span th:if="${slot.status == 'AVAILABLE'}" class="status-pill available" style="width:fit-content;">
+                    <span class="blip"></span>OPEN
+                </span>
+                <span th:if="${slot.status == 'OCCUPIED'}" class="status-pill occupied" style="width:fit-content;">
+                    <span class="blip"></span>FULL
+                </span>
+            </span>
+
+            <span>
+                <a th:href="@{/admin/slots/edit/{id}(id=${slot.id})}" class="edit-btn">Edit</a>
+                <form th:action="@{/admin/slots/delete/{id}(id=${slot.id})}" method="post" style="display:inline">
+                    <button type="submit" class="del-btn" style="background:none; font-family:'IBM Plex Mono',monospace; border:1px solid var(--red); padding:6px 12px; border-radius:3px;">Delete</button>
+                </form>
+            </span>
+        </div>
+    </div>
+
+    <!-- Late Pickup Overtime Incident History -->
+    <div class="board-header" style="margin-top: 40px; margin-bottom: 15px;">
+        <h3>Late Pickup Overtime Incidents</h3>
+    </div>
+    
+    <div class="admin-table-wrap" style="margin-bottom:40px;">
+        <div class="admin-slots-head" style="grid-template-columns: 120px 1.5fr 1.2fr 1.2fr 100px 100px;">
+            <span>License Plate</span>
+            <span>Slot & User</span>
+            <span>Booked Exit</span>
+            <span>Actual Exit</span>
+            <span>Overtime</span>
+            <span>Total Paid</span>
+        </div>
+
+        <div class="admin-slots-row" th:each="res : ${overtimeReservations}" style="grid-template-columns: 120px 1.5fr 1.2fr 1.2fr 100px 100px;">
+            <span style="font-weight:bold; color:var(--yellow);" th:text="${res.licensePlate}">KA-03-MK-7382</span>
+            <div>
+                <span th:text="${res.slot.slotNumber}" style="font-weight:bold;">A-12</span> · 
+                <span th:text="${res.user.name}">John</span>
+            </div>
+            <span th:text="${#temporals.format(res.bookedExitTime, 'dd MMM HH:mm')}">03 JUL 17:00</span>
+            <span th:text="${#temporals.format(res.actualExitTime, 'dd MMM HH:mm')}" style="color:var(--green);">03 JUL 18:30</span>
+            <span style="color:#e4572e; font-weight:bold;" th:text="'Rs. ' + ${res.overtimeCharge}">Rs. 40.00</span>
+            <span style="font-weight:bold;" th:text="'Rs. ' + ${res.totalPaid}">Rs. 115.00</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(overtimeReservations)}">
+            <p style="text-align:center; padding:20px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:#888;">
+                No late pickup overtime incidents logged.
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

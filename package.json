@@ -1,0 +1,9 @@
+{
+  "name": "parking-reservation-wrapper",
+  "version": "1.0.0",
+  "description": "NPM wrapper for Parking Reservation Spring Boot application",
+  "scripts": {
+    "dev": "cd parking-reservation && mvnw.cmd spring-boot:run"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin Login')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="stripe-top" style="background: repeating-linear-gradient(-45deg, var(--yellow), var(--yellow) 10px, var(--asphalt) 10px, var(--asphalt) 20px);"></div>
+        <div class="inner">
+            <h2>Admin Portal</h2>
+            <div class="sub">Log in to access the administrator controls.</div>
+            <p th:if="${errorMessage}" class="error-msg" th:text="${errorMessage}">Invalid credentials.</p>
+            <form th:action="@{/admin/login}" method="post">
+                <div class="field-group">
+                    <label for="email">Admin Email</label>
+                    <input type="email" id="email" name="email" placeholder="admin@parking.com" required>
+                </div>
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

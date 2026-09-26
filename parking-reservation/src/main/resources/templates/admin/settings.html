@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('System Settings')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="auth-wrap" style="min-height: auto; padding: 40px 20px;">
+    <div class="auth-card" style="width: 500px;">
+        <div class="stripe-top"></div>
+        <div class="inner">
+            <h2>Admin Settings</h2>
+            <p class="sub">Configure system prices, limits, and overtime rules.</p>
+            
+            <p th:if="${param.success}" class="success-msg">Settings saved successfully!</p>
+            
+            <form th:action="@{/admin/settings/save}" method="post" style="margin-top:20px;">
+                <div class="field-group">
+                    <label for="basePricePerHour">Base Parking Fare (per hour)</label>
+                    <input type="number" step="0.01" id="basePricePerHour" name="basePricePerHour" th:value="${settings.basePricePerHour}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="overtimeRatePerHour">Overtime Charge (per hour)</label>
+                    <input type="number" step="0.01" id="overtimeRatePerHour" name="overtimeRatePerHour" th:value="${settings.overtimeRatePerHour}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="overtimeGracePeriodMinutes">Grace Period (minutes)</label>
+                    <input type="number" id="overtimeGracePeriodMinutes" name="overtimeGracePeriodMinutes" th:value="${settings.overtimeGracePeriodMinutes}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="evChargingPrice">EV Charging Surcharge (per hour)</label>
+                    <input type="number" step="0.01" id="evChargingPrice" name="evChargingPrice" th:value="${settings.evChargingPrice}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="maxBookingHours">Maximum Booking Duration (hours)</label>
+                    <input type="number" id="maxBookingHours" name="maxBookingHours" th:value="${settings.maxBookingHours}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="monthlyPermitPrice">Monthly Permit Price</label>
+                    <input type="number" step="0.01" id="monthlyPermitPrice" name="monthlyPermitPrice" th:value="${settings.monthlyPermitPrice}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="adminEmail">Admin Email</label>
+                    <input type="email" id="adminEmail" name="adminEmail" th:value="${settings.adminEmail}" required>
+                </div>
+                
+                <div class="field-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <input type="password" id="adminPassword" name="adminPassword" th:value="${settings.adminPassword}" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Save Configurations</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

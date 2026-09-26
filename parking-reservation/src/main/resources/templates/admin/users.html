@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Manage Users')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<style>
+    .admin-usr-head {
+        display: grid;
+        grid-template-columns: 80px 1.5fr 2fr 1.2fr 100px 1.5fr;
+        background: var(--concrete-light);
+        padding: 12px 22px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--chalk-dim);
+    }
+    .admin-usr-row {
+        display: grid;
+        grid-template-columns: 80px 1.5fr 2fr 1.2fr 100px 1.5fr;
+        padding: 14px 22px;
+        align-items: center;
+        border-top: 1px solid #1E1E22;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+    }
+    @media (max-width: 768px) {
+        .admin-usr-head { display: none; }
+        .admin-usr-row { grid-template-columns: 1fr; row-gap: 6px; padding: 16px; }
+    }
+</style>
+
+<div class="admin-wrap">
+    <div class="admin-header" style="margin-bottom:20px;">
+        <h2>Manage Users</h2>
+    </div>
+
+    <!-- Search Bar -->
+    <div style="background:var(--concrete); border:1px solid #000; border-radius:6px; padding:20px; margin-bottom:24px;">
+        <form th:action="@{/admin/users}" method="get" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:250px;">
+                <label style="display:block; font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--chalk-dim); text-transform:uppercase; margin-bottom:6px;">Search Registered Users</label>
+                <input type="text" name="search" th:value="${search}" placeholder="Search by name, email..." style="width:100%; background:var(--asphalt); border:1px solid #444; color:var(--chalk); padding:10px 12px; border-radius:4px; font-size:13px; outline:none;">
+            </div>
+            <div style="margin-top:20px;">
+                <button type="submit" class="btn btn-primary" style="padding:10px 20px; font-size:12px;">Search</button>
+                <a th:href="@{/admin/users}" class="btn btn-outline" style="padding:10px 20px; font-size:12px; margin-left:8px;">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Board -->
+    <div class="admin-table-wrap" style="margin-bottom:40px;">
+        <div class="admin-usr-head">
+            <span>ID</span>
+            <span>Name</span>
+            <span>Email</span>
+            <span>Role</span>
+            <span>Status</span>
+            <span>Actions</span>
+        </div>
+
+        <div class="admin-usr-row" th:each="u : ${users}">
+            <span style="font-weight:bold; color:var(--chalk-dim);" th:text="'#' + ${u.id}">#1</span>
+            <span style="font-weight:bold;" th:text="${u.name}">John Doe</span>
+            <span th:text="${u.email}">john@email.com</span>
+            <span th:text="${u.role.replace('ROLE_', '')}" style="color:var(--yellow); font-weight:bold;">USER</span>
+            
+            <span>
+                <span th:if="${u.active}" class="status-pill available">ACTIVE</span>
+                <span th:if="${!u.active}" class="status-pill occupied">BLOCKED</span>
+            </span>
+
+            <span style="display:flex; gap:8px; flex-wrap:wrap;">
+                <!-- Block / Activate action forms -->
+                <form th:if="${u.active && u.role != 'ROLE_ADMIN'}" th:action="@{/admin/users/block/{id}(id=${u.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="book-btn" style="background:#e4572e; padding:6px 12px; font-size:10px;">Block</button>
+                </form>
+                <form th:if="${!u.active && u.role != 'ROLE_ADMIN'}" th:action="@{/admin/users/activate/{id}(id=${u.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="book-btn" style="background:var(--green); padding:6px 12px; font-size:10px;">Activate</button>
+                </form>
+                
+                <!-- History -->
+                <a th:href="@{/admin/users/history/{id}(id=${u.id})}" class="btn btn-outline" style="padding:6px 12px; font-size:10px; text-transform:none; font-family:'IBM Plex Mono',monospace; border-radius:3px; font-weight:bold;">History</a>
+                
+                <!-- Delete -->
+                <form th:if="${u.role != 'ROLE_ADMIN'}" th:action="@{/admin/users/delete/{id}(id=${u.id})}" method="post" style="display:inline;">
+                    <button type="submit" style="background:none; border:1px solid var(--red); color:var(--red); font-family:'IBM Plex Mono',monospace; padding:5px 10px; border-radius:3px; font-size:10px; cursor:pointer; font-weight:bold;">Delete</button>
+                </form>
+            </span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(users)}">
+            <p style="text-align:center; padding:20px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:#888;">
+                No registered users found.
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

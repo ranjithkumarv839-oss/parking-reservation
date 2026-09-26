@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Revenue Dashboard')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="admin-wrap">
+    <div class="admin-header" style="margin-bottom:20px;">
+        <h2>Revenue Dashboard</h2>
+    </div>
+
+    <!-- Revenue KPIs -->
+    <div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important; gap: 10px; margin-bottom: 30px;">
+        <div class="kpi">
+            <div class="lbl">Today's Revenue</div>
+            <div class="val green" th:text="'Rs. ' + ${todayRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">Weekly Revenue</div>
+            <div class="val green" th:text="'Rs. ' + ${weeklyRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">Monthly Revenue</div>
+            <div class="val green" th:text="'Rs. ' + ${monthlyRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">Total Collected Revenue</div>
+            <div class="val green" th:text="'Rs. ' + ${totalRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">Overtime Fees Revenue</div>
+            <div class="val" style="color:var(--yellow);" th:text="'Rs. ' + ${overtimeRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">Valet Addon Revenue</div>
+            <div class="val" style="color:var(--yellow);" th:text="'Rs. ' + ${valetRevenue}">Rs. 0.00</div>
+        </div>
+        <div class="kpi">
+            <div class="lbl">EV Charging Revenue</div>
+            <div class="val" style="color:var(--yellow);" th:text="'Rs. ' + ${evRevenue}">Rs. 0.00</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!-- File: src/main/resources/templates/index.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Home')}"></head>
+<body>
+<div class="fragments-nav" th:replace="~{fragments/header :: navbar}"></div>
+<p th:if="${param.logout}" class="success-msg" style="max-width: 480px; margin: 20px auto -10px; text-align: center;">You have been logged out successfully.</p>
+<div class="hero">
+    <div class="eyebrow">// RESERVE AHEAD, SKIP THE CIRCLING</div>
+    <h1>Find your<br>parking <span class="accent">point.</span></h1>
+    <p>Reserve your exact spot before you arrive. Real-time availability, instant confirmation, cancel anytime.</p>
+    <a th:href="@{/slots}" class="btn btn-primary">Find a Slot</a>
+    <a th:href="@{/register}" class="btn btn-outline" style="margin-left:12px;">Get Started</a>
+    <div class="stats-row">
+        <div class="stat"><div class="num" th:text="${totalSlots}">142</div><div class="lbl">Slots Live</div></div>
+        <div class="stat"><div class="num" th:text="${fillRate} + '%'">98%</div><div class="lbl">On-Time Fill</div></div><div class="stat"><div class="num">24/7</div><div class="lbl">Booking Open</div></div>
+    </div>
+</div>
+<div class="hazard-strip"></div>
+<div class="features">
+    <div class="feature-card">
+        <div class="idx">A —</div>
+        <h3>Live Availability</h3>
+        <p>The board updates the moment a slot opens or fills. No guessing, no stale listings.</p>
+    </div>
+    <div class="feature-card">
+        <div class="idx">B —</div>
+        <h3>One-Tap Reserve</h3>
+        <p>Pick a slot, set your time window, get a ticket. Done in under fifteen seconds.</p>
+    </div>
+    <div class="feature-card">
+        <div class="idx">C —</div>
+        <h3>Cancel Anytime</h3>
+        <p>Plans change. Release your slot instantly and free it up for someone else.</p>
+    </div>
+</div>
+</body>
+</html>

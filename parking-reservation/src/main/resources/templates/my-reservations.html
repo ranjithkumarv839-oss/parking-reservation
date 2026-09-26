@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: head('My Reservations')}"></head>
+
+<body>
+
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<style>
+    .my-res-title-bar {
+        background: var(--yellow);
+        color: #1C1C1E;
+        padding: 12px 22px;
+        font-family: 'Oswald', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0.06em;
+        display: grid;
+        grid-template-columns: 90px 1.5fr 1.2fr 1fr 90px 90px;
+    }
+    .my-res-row {
+        display: grid;
+        grid-template-columns: 90px 1.5fr 1.2fr 1fr 90px 90px;
+        align-items: center;
+        padding: 16px 22px;
+        border-bottom: 1px solid #1E1E22;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+    }
+    @media (max-width: 768px) {
+        .my-res-title-bar {
+            display: none;
+        }
+        .my-res-row {
+            grid-template-columns: 1fr;
+            row-gap: 8px;
+            padding: 16px;
+        }
+    }
+    .detail-label {
+        font-size: 9px;
+        color: #777;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+    .detail-val {
+        font-weight: 500;
+    }
+</style>
+
+<div class="board-wrap">
+
+    <div class="board-header">
+        <h2>My Reservations</h2>
+    </div>
+
+    <p th:if="${message}" class="success-msg" th:text="${message}"></p>
+    <p th:if="${param.checkoutSuccess}" class="success-msg">Vehicle checked out successfully! Overtime computed and payments processed.</p>
+
+    <div class="board">
+
+        <div class="my-res-title-bar">
+            <span>Slot</span>
+            <span>Booking Window & Plate</span>
+            <span>Location & Valet</span>
+            <span>Rate / Total</span>
+            <span>Status</span>
+            <span>Action</span>
+        </div>
+
+        <div class="my-res-row" th:each="res : ${reservations}">
+
+            <div class="slot-id">
+                <span th:text="${res.slot.slotNumber}"></span>
+                <span th:if="${res.slot.evCharging}" style="color:var(--yellow); font-size:11px;" title="EV Slot">⚡</span>
+                <span th:if="${res.slot.disabilitySlot}" style="color:#3b82f6; font-size:11px;" title="Disability Accessible">♿</span>
+            </div>
+
+            <!-- Booking Window & License Plate -->
+            <div>
+                <div class="detail-label">Time Range</div>
+                <div class="detail-val" style="font-size: 11px; margin-bottom: 4px;"
+                     th:text="|${#temporals.format(res.startTime,'dd MMM HH:mm')} - ${#temporals.format(res.endTime,'dd MMM HH:mm')}|">
+                </div>
+                <div class="detail-label">Vehicle Registration</div>
+                <div class="detail-val" style="font-size:11px; margin-bottom: 4px;" th:text="${res.licensePlate}"></div>
+                
+                <!-- Overtime Details History -->
+                <div th:if="${res.status == 'COMPLETED'}" style="border-top:1px dashed #444; padding-top:4px; margin-top:4px;">
+                    <div class="detail-label">Actual Exit Time</div>
+                    <div class="detail-val" style="font-size:11px; color:var(--green);" 
+                         th:text="${#temporals.format(res.actualExitTime,'dd MMM HH:mm')}"></div>
+                    <div class="detail-label" style="margin-top:2px;">Overtime Charge</div>
+                    <div class="detail-val" style="font-size:11px; color:#e4572e; font-weight:bold;" 
+                         th:text="'Rs. ' + ${res.overtimeCharge}"></div>
+                </div>
+            </div>
+
+            <!-- Location & Valet Service Status -->
+            <div>
+                <div class="detail-label">Location</div>
+                <div class="detail-val" style="font-size: 12px; color: var(--chalk-dim); margin-bottom: 4px;" th:text="${res.slot.location}"></div>
+                <div class="detail-label">Valet Service</div>
+                <div class="detail-val" th:style="${res.needValet ? 'color:var(--yellow);' : ''}" th:text="${res.needValet ? 'Requested (Active)' : 'Not Opted'}"></div>
+            </div>
+
+            <!-- Locked dynamic price and computed cost -->
+            <div>
+                <div class="detail-label">Rate Locked</div>
+                <div class="detail-val" style="font-size:12px; margin-bottom: 4px;" th:text="'Rs. ' + ${res.bookedPricePerHour} + '/hr'"></div>
+                <div class="detail-label" th:text="${res.status == 'COMPLETED'} ? 'Total Paid' : 'Est. Total'">Total Cost</div>
+                <!-- Display final paid including overtime vs estimated cost -->
+                <div class="detail-val" style="font-size:13px; font-weight:bold; color:var(--yellow);" 
+                     th:text="${res.status == 'COMPLETED'} ? 'Rs. ' + ${res.totalPaid} : 'Rs. ' + ${res.totalCost + (res.needValet ? 50 : 0)}"></div>
+            </div>
+
+            <div>
+                <span th:if="${res.status == 'ACTIVE'}"
+                      class="status-pill available">
+                    ACTIVE
+                </span>
+
+                <span th:if="${res.status == 'COMPLETED'}"
+                      class="status-pill available" style="background:rgba(63,167,150,0.15); color:var(--green); border:1px solid var(--green);">
+                    COMPLETED
+                </span>
+
+                <span th:if="${res.status == 'CANCELLED'}"
+                      class="status-pill occupied">
+                    CANCELLED
+                </span>
+            </div>
+
+            <div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div th:if="${res.status == 'ACTIVE'}" style="display:flex; flex-direction:column; gap:6px;">
+                        <a th:href="@{/reservations/checkout/{id}(id=${res.id})}"
+                           class="book-btn"
+                           style="background:var(--yellow); color:#000; text-decoration:none; text-align:center; padding:6px 12px; font-size:11px;">
+                            Checkout
+                        </a>
+                        <form th:action="@{/reservations/cancel/{id}(id=${res.id})}" method="post">
+                            <button type="submit"
+                                    class="book-btn"
+                                    style="background:#e4572e; padding:6px 12px; width:100%; font-size:11px;">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                    <button class="book-btn"
+                            style="background:transparent; border: 1px solid var(--yellow); color:var(--yellow); padding:6px 12px; width:100%; font-size:11px; cursor:pointer;"
+                            th:onclick="triggerShare([[${res.id}]], [[${res.slot.location}]], [[${res.slot.slotNumber}]], [[${#temporals.format(res.startTime, 'dd MMM HH:mm')}]], [[${#temporals.format(res.endTime, 'dd MMM HH:mm')}]], [[${res.licensePlate}]], [[${res.status}]])">
+                        Share
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div th:if="${#lists.isEmpty(reservations)}">
+            <p style="text-align:center;padding:20px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:#888;">
+                No reservations found.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function triggerShare(id, location, slotNum, entryTime, exitTime, plate, status) {
+        const shareText = `Parking Reservation Details:
+- Booking ID: ${id}
+- Parking Location: ${location}
+- Slot Number: ${slotNum}
+- Entry Time: ${entryTime}
+- Exit Time: ${exitTime}
+- Vehicle Number: ${plate || 'N/A'}
+- Status: ${status}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'ParkPoint Booking Details',
+                text: shareText
+            }).then(() => {
+                showShareSuccessAlert('Booking shared successfully!');
+            }).catch((error) => {
+                if (error.name !== 'AbortError') {
+                    showFallbackModal(shareText);
+                }
+            });
+        } else {
+            showFallbackModal(shareText);
+        }
+    }
+
+    function showFallbackModal(text) {
+        let existing = document.getElementById('shareModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'shareModal';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.background = 'rgba(0,0,0,0.85)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '10000';
+        modal.style.fontFamily = "'IBM Plex Mono', monospace";
+        modal.style.padding = '20px';
+
+        const content = document.createElement('div');
+        content.style.background = '#29292E';
+        content.style.border = '1px solid #FFC629';
+        content.style.borderRadius = '8px';
+        content.style.width = '100%';
+        content.style.maxWidth = '400px';
+        content.style.padding = '24px';
+        content.style.color = '#F4F3EE';
+
+        content.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #444; padding-bottom:8px;">
+                <h4 style="margin:0; font-family:'Oswald', sans-serif; font-size:16px; letter-spacing:0.05em; color:#FFC629; text-transform:uppercase;">Share Booking</h4>
+                <button onclick="document.getElementById('shareModal').remove()" style="background:none; border:none; color:#FFC629; font-size:20px; cursor:pointer;">&times;</button>
+            </div>
+            
+            <textarea readonly style="width:100%; height:130px; background:#1C1C1E; border:1px solid #444; color:#F4F3EE; padding:10px; border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:11px; resize:none; margin-bottom:18px; outline:none;">${text}</textarea>
+            
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button id="copyBtn" style="background:#FFC629; color:#1C1C1E; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; text-transform:uppercase;">Copy to Clipboard</button>
+                <button id="whatsappBtn" style="background:#25D366; color:#fff; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; text-transform:uppercase;">Share via WhatsApp</button>
+                <button id="emailBtn" style="background:#0078D4; color:#fff; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; text-transform:uppercase;">Share via Email</button>
+            </div>
+            <div id="shareStatus" style="color:#3FA796; font-size:11px; text-align:center; margin-top:12px; height:15px; font-weight:bold;"></div>
+        `;
+
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+
+        document.getElementById('copyBtn').onclick = () => {
+            navigator.clipboard.writeText(text).then(() => {
+                const status = document.getElementById('shareStatus');
+                status.textContent = 'Copied to clipboard successfully!';
+                setTimeout(() => {
+                    modal.remove();
+                    showShareSuccessAlert('Booking details copied!');
+                }, 1200);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        };
+
+        document.getElementById('whatsappBtn').onclick = () => {
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            modal.remove();
+        };
+
+        document.getElementById('emailBtn').onclick = () => {
+            const url = `mailto:?subject=ParkPoint%20Booking%20Details&body=${encodeURIComponent(text)}`;
+            window.open(url, '_self');
+            modal.remove();
+        };
+     }
+
+     function showShareSuccessAlert(msg) {
+         const alertBox = document.createElement('div');
+         alertBox.className = 'success-msg';
+         alertBox.style.position = 'fixed';
+         alertBox.style.top = '20px';
+         alertBox.style.left = '50%';
+         alertBox.style.transform = 'translateX(-50%)';
+         alertBox.style.zIndex = '99999';
+         alertBox.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+         alertBox.textContent = msg;
+         document.body.appendChild(alertBox);
+         setTimeout(() => {
+             alertBox.remove();
+         }, 3000);
+     }
+</script>
+</body>
+</html>

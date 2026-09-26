@@ -1,0 +1,278 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/header :: head('Admin Dashboard')}"></head>
+  <body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="admin-wrap">
+      <div class="admin-header">
+        <div>
+          <p class="eyebrow">Live lot diagnostics</p>
+          <h2>Admin Dashboard</h2>
+          <p class="subtext">
+            View real-time parking availability, occupancy, revenue, and booking
+            performance from one centralized command center.
+          </p>
+        </div>
+        <div class="dashboard-action-card">
+          <span class="dashboard-chip">Live status</span>
+          <strong id="dashboardUpdateTime">LIVE</strong>
+          <p class="dashboard-note">
+            This panel refreshes automatically every 5 seconds for current lot
+            metrics.
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard-hero">
+        <div class="hero-panel">
+          <div class="hero-panel-header">
+            <span class="eyebrow">lot overview</span>
+            <span
+              class="status-pill"
+              th:text="${occupancyPercentage} + '% Occupied'"
+              >0.0% Occupied</span
+            >
+          </div>
+          <div class="hero-panel-body">
+            <div class="metric-row">
+              <div class="metric-card accent">
+                <div class="card-label">Total parking slots</div>
+                <div class="card-value" th:text="${totalSlots}">0</div>
+              </div>
+              <div class="metric-card green">
+                <div class="card-label">Available slots</div>
+                <div class="card-value" th:text="${availableSlots}">0</div>
+              </div>
+            </div>
+            <div class="metric-row">
+              <div class="metric-card red">
+                <div class="card-label">Occupied slots</div>
+                <div class="card-value" th:text="${occupiedSlots}">0</div>
+              </div>
+              <div class="metric-card yellow">
+                <div class="card-label">Reserved slots</div>
+                <div class="card-value" th:text="${reservedSlots}">0</div>
+              </div>
+            </div>
+            <div class="hero-summary">
+              <div>
+                <span class="summary-label">EV charging slots</span>
+                <strong class="summary-value" th:text="${evSlots}">0</strong>
+              </div>
+              <div>
+                <span class="summary-label">Maintenance slots</span>
+                <strong class="summary-value" th:text="${maintenanceSlots}"
+                  >0</strong
+                >
+              </div>
+              <div>
+                <span class="summary-label">Disability slots</span>
+                <strong class="summary-value" th:text="${disabledSlots}"
+                  >0</strong
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-panel">
+          <div class="status-card">
+            <div class="status-meta">
+              <span class="meta-label">Occupancy</span>
+              <span
+                class="meta-value"
+                id="liveOccupancy"
+                th:text="${occupancyPercentage} + '%'"
+                >0.0%</span
+              >
+            </div>
+            <div class="progress-track">
+              <div
+                id="occupancyFill"
+                class="progress-fill"
+                style="width: 0%"
+              ></div>
+            </div>
+            <p class="status-copy">
+              This figure reflects how much of the lot is in use right now.
+            </p>
+          </div>
+          <div class="status-card compact">
+            <div class="status-meta">
+              <span class="meta-label">Registered users</span>
+              <strong id="liveUsers" th:text="${totalUsers}">0</strong>
+            </div>
+            <div class="status-meta">
+              <span class="meta-label">Active permits</span>
+              <strong th:text="${monthlyPermitsCount}">0</strong>
+            </div>
+            <p class="status-copy">
+              Monitor registered user growth and permit utilization in one
+              glance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <section class="admin-actions">
+        <div class="admin-actions-header">
+          <div>
+            <p class="eyebrow">Admin command center</p>
+            <h3>Access critical operational tools</h3>
+            <p class="subtext">
+              Replace user-facing permit and ticket sections with admin-specific
+              management and analytics tools for a complete control view.
+            </p>
+          </div>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-title">Dashboard Overview</span>
+            <span class="feature-detail"
+              >Live insights for lot performance.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">User Management</span>
+            <span class="feature-detail"
+              >Manage accounts and access roles.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Permit Management</span>
+            <span class="feature-detail"
+              >Track monthly passes and renewals.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Booking Management</span>
+            <span class="feature-detail"
+              >Review reservations and statuses.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Parking Slot Management</span>
+            <span class="feature-detail"
+              >Control availability and maintenance.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">EV Charging Management</span>
+            <span class="feature-detail"
+              >Monitor chargers and EV slot usage.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Payments</span>
+            <span class="feature-detail"
+              >Audit revenue and transaction flow.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Analytics</span>
+            <span class="feature-detail"
+              >Analyze trends, occupancy, and growth.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">Reports</span>
+            <span class="feature-detail"
+              >Generate daily and monthly summaries.</span
+            >
+          </div>
+          <div class="feature-card">
+            <span class="feature-title">System Settings</span>
+            <span class="feature-detail"
+              >Configure admin, lot, and security settings.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <div class="dashboard-panel">
+        <div class="dashboard-card">
+          <div class="card-label">Today's bookings</div>
+          <div class="card-value" th:text="${todayBookings}">0</div>
+          <p class="card-note">Bookings initiated today across the lot.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Active reservations</div>
+          <div class="card-value" th:text="${activeReservations}">0</div>
+          <p class="card-note">Reservations currently in progress.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Completed bookings</div>
+          <div class="card-value green" th:text="${completedReservations}">
+            0
+          </div>
+          <p class="card-note">Bookings finished successfully.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Cancelled bookings</div>
+          <div class="card-value red" th:text="${cancelledReservations}">0</div>
+          <p class="card-note">Reservations that were cancelled.</p>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="dashboard-card wide">
+          <div class="card-label">Total revenue</div>
+          <div class="card-value accent">
+            Rs. <span th:text="${totalRevenue}">0.0</span>
+          </div>
+          <p class="card-note">Revenue from all completed reservations.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Overtime collection</div>
+          <div class="card-value yellow">
+            Rs. <span th:text="${overtimeCollected}">0.0</span>
+          </div>
+          <p class="card-note">
+            Extra charges collected from overtime parking.
+          </p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Valet requests</div>
+          <div class="card-value" th:text="${valetBookings}">0</div>
+          <p class="card-note">Customers who selected valet service.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="card-label">Monthly permits</div>
+          <div class="card-value" th:text="${monthlyPermitsCount}">0</div>
+          <p class="card-note">Active long-term parking permits.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const updateDashboard = (data) => {
+        document.getElementById("liveOccupancy").textContent =
+          data.occupancyPercentage + "%";
+        document.getElementById("occupancyFill").style.width =
+          Math.min(100, Math.max(0, data.occupancyPercentage)) + "%";
+        document.getElementById("liveUsers").textContent = data.totalUsers;
+        document.getElementById("dashboardUpdateTime").textContent =
+          new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+      };
+
+      const fetchLiveStats = () => {
+        fetch("/admin/dashboard/live-stats")
+          .then((res) => res.json())
+          .then((data) => updateDashboard(data))
+          .catch((err) =>
+            console.error("Error fetching live diagnostics:", err),
+          );
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchLiveStats();
+        setInterval(fetchLiveStats, 5000);
+      });
+    </script>
+  </body>
+</html>

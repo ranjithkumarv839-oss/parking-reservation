@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('User History')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<style>
+    .admin-res-head {
+        display: grid;
+        grid-template-columns: 80px 1.5fr 1.5fr 100px 90px 100px;
+        background: var(--concrete-light);
+        padding: 12px 22px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--chalk-dim);
+    }
+    .admin-res-row {
+        display: grid;
+        grid-template-columns: 80px 1.5fr 1.5fr 100px 90px 100px;
+        padding: 14px 22px;
+        align-items: center;
+        border-top: 1px solid #1E1E22;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+    }
+    @media (max-width: 768px) {
+        .admin-res-head { display: none; }
+        .admin-res-row { grid-template-columns: 1fr; row-gap: 6px; padding: 16px; }
+    }
+</style>
+
+<div class="admin-wrap">
+    <div class="admin-header" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h2>User Booking History</h2>
+            <p style="color:var(--yellow); font-family:'IBM Plex Mono', monospace; font-size:13px; margin-top:4px;" 
+               th:text="|User: ${targetUser.name} (${targetUser.email})|">User: John Doe (john@email.com)</p>
+        </div>
+        <a th:href="@{/admin/users}" class="btn btn-outline" style="padding:10px 20px; font-size:12px;">Back to Users</a>
+    </div>
+
+    <!-- Booking history details list -->
+    <div class="admin-table-wrap" style="margin-bottom:40px;">
+        <div class="admin-res-head">
+            <span>ID</span>
+            <span>Slot & Location</span>
+            <span>Booking Window</span>
+            <span>Plate No</span>
+            <span>Paid</span>
+            <span>Status</span>
+        </div>
+
+        <div class="admin-res-row" th:each="res : ${reservations}">
+            <span style="font-weight:bold; color:var(--chalk-dim);" th:text="'#' + ${res.id}">#12</span>
+            
+            <div>
+                <span th:text="${res.slot.slotNumber}" style="font-weight:bold; color:var(--yellow);">A-12</span> · 
+                <span th:text="${res.slot.location}" style="font-size:11px; color:var(--chalk-dim);">Main Lot</span>
+            </div>
+
+            <span style="font-size:11px;"
+                 th:text="|${#temporals.format(res.startTime,'dd MMM HH:mm')} - ${#temporals.format(res.endTime,'dd MMM HH:mm')}|">
+            </span>
+
+            <span style="font-weight:bold; color:var(--yellow);" th:text="${res.licensePlate}">KA-03-MK-7382</span>
+
+            <div>
+                <div th:text="'Rs. ' + ${res.totalPaid}" style="font-weight:bold; color:var(--green);" th:if="${res.status == 'COMPLETED'}">Rs. 60</div>
+                <div th:text="'Est: Rs. ' + ${res.totalCost + (res.needValet ? 50 : 0)}" style="font-size:11px; color:var(--chalk-dim);" th:if="${res.status != 'COMPLETED'}">Rs. 60</div>
+            </div>
+
+            <div>
+                <span th:if="${res.status == 'ACTIVE'}" class="status-pill available">ACTIVE</span>
+                <span th:if="${res.status == 'COMPLETED'}" class="status-pill available" style="background:rgba(63,167,150,0.15); color:var(--green); border:1px solid var(--green);">COMPLETED</span>
+                <span th:if="${res.status == 'CANCELLED'}" class="status-pill occupied">CANCELLED</span>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reservations)}">
+            <p style="text-align:center; padding:20px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:#888;">
+                No bookings logged for this user.
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

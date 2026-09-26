@@ -1,0 +1,32 @@
+<!-- File: src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Login')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="stripe-top"></div>
+        <div class="inner">
+            <h2>Welcome back</h2>
+            <div class="sub">Log in to manage your reservations.</div>
+            <p th:if="${customError}" class="error-msg" th:text="${customError}"></p>
+            <p th:if="${param.error != null && customError == null}" class="error-msg">Invalid email or password.</p>
+            <p th:if="${param.logout}" class="success-msg">You have been logged out.</p>
+            <form th:action="@{/login}" method="post">
+                <div class="field-group">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" name="username" placeholder="you@college.edu" required>
+                </div>
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Login</button>
+            </form>
+            <div class="switch">New here? <a th:href="@{/register}">Create an account</a></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

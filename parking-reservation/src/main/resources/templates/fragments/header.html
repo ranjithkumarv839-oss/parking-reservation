@@ -1,0 +1,46 @@
+<!-- File: src/main/resources/templates/fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | ParkPoint'">ParkPoint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:fragment="navbar">
+    <div class="mobile-nav" id="mobileNav">
+        <!-- Non-admin navigation -->
+        <th:block sec:authorize="!hasRole('ADMIN')">
+            <a th:href="@{/}" class="nav-btn">Home</a>
+            <a th:href="@{/slots}" class="nav-btn">Slots Board</a>
+            <a th:href="@{/login}" sec:authorize="isAnonymous()" class="nav-btn">Login</a>
+            <a th:href="@{/reservations/my}" sec:authorize="isAuthenticated()" class="nav-btn">Booking Ticket</a>
+            <a th:href="@{/permits}" sec:authorize="isAuthenticated()" class="nav-btn">Permits</a>
+            <a th:href="@{/admin/login}" sec:authorize="isAnonymous()" class="nav-btn">Admin</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()" class="nav-btn">Logout</a>
+        </th:block>
+
+        <!-- Admin navigation -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/dashboard}" class="nav-btn">Admin Dashboard</a>
+            <a th:href="@{/logout}" class="nav-btn">Logout</a>
+        </th:block>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var path = window.location.pathname;
+            document.querySelectorAll('.nav-btn').forEach(function (btn) {
+                var href = btn.getAttribute('href');
+                if (href === path || (path === '/' && btn.textContent.trim() === 'Home')) {
+                    btn.classList.add('active');
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

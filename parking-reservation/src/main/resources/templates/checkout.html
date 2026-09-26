@@ -1,0 +1,148 @@
+<!-- File: src/main/resources/templates/checkout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Checkout Reservation')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="ticket-wrap">
+    <div class="ticket" style="width: 480px;">
+        <div class="ticket-top">
+            <span class="brand">PARKPOINT CHECKOUT</span>
+            <span class="status-chip" style="background:#fff; color:#000;">ACTIVE</span>
+        </div>
+        
+        <div class="ticket-body">
+            <div class="slot-big" th:text="${reservation.slot.slotNumber}">B-04</div>
+            <div class="slot-loc" th:text="${reservation.slot.location}">Block B - Level 2, North Wing</div>
+
+            <form th:action="@{/reservations/checkout/{id}(id=${reservation.id})}" method="post">
+                
+                <!-- Ticket details grid -->
+                <div class="ticket-grid" style="margin-bottom: 20px;">
+                    <div class="field">
+                        <div class="lbl">Entry Time</div>
+                        <div class="val" th:text="${#temporals.format(reservation.startTime, 'dd MMM yyyy HH:mm')}">03 JUL 14:00</div>
+                    </div>
+                    <div class="field">
+                        <div class="lbl">Booked Exit Time</div>
+                        <div class="val" id="bookedExitDisplay" th:text="${#temporals.format(reservation.bookedExitTime, 'dd MMM yyyy HH:mm')}">03 JUL 17:00</div>
+                    </div>
+                    <div class="field">
+                        <div class="lbl">Base Duration</div>
+                        <div class="val" th:text="${reservation.durationHours} + ' HRS'">3 HRS</div>
+                    </div>
+                    <div class="field">
+                        <div class="lbl">Base Total Fare</div>
+                        <div class="val" th:text="'Rs. ' + ${reservation.totalCost}">Rs. 75.00</div>
+                    </div>
+                </div>
+
+                <!-- Perforated Line divider -->
+                <div class="perforation"></div>
+
+                <!-- Late Pickup Extra Charge Section -->
+                <div style="margin-top: 10px;">
+                    <h3 style="font-family:'Oswald', sans-serif; font-size:16px; margin-bottom: 12px; text-transform:uppercase; color:#1C1C1E; letter-spacing:0.04em;">
+                        Vehicle Checkout / Collection Details
+                    </h3>
+
+                    <!-- Simulated Actual Exit Input -->
+                    <div class="field-group" style="margin-bottom: 15px;">
+                        <label for="actualExitTime" style="color:#666; font-family:'IBM Plex Mono', monospace; font-size:10px; margin-bottom:5px; display:block;">
+                            Actual Exit Date / Time (Simulate Late Pickup)
+                        </label>
+                        <input type="datetime-local" id="actualExitTime" name="actualExitTime" 
+                               th:value="${actualExitTime}" 
+                               style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family:'Inter', sans-serif; font-size: 14px;" 
+                               required onchange="calculateOvertime()">
+                    </div>
+
+                    <!-- Calculated Overtime Outputs -->
+                    <div style="background:#fff; border: 1px solid #e1e0d7; padding: 14px; border-radius: 6px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:#333;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                            <span>Grace Period:</span>
+                            <span th:text="${gracePeriodMinutes} + ' mins'">15 mins</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                            <span>Overtime Hourly Rate:</span>
+                            <span th:text="'Rs. ' + ${overtimeRatePerHour}">Rs. 40.0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-top:1px dashed #ccc; padding-top:6px;">
+                            <span>Extra Duration:</span>
+                            <span id="extraDurationText" style="font-weight:bold;">0 mins</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 6px; color:#e4572e; font-weight:bold;">
+                            <span>Overtime Charge:</span>
+                            <span id="overtimeChargeText">Rs. 0.00</span>
+                        </div>
+                        <div th:if="${reservation.needValet}" style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                            <span>Valet Service Charge:</span>
+                            <span>Rs. 50.00</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:16px; border-top:1px solid #333; padding-top:8px; margin-top:8px; font-weight:bold; color:#1C1C1E;">
+                            <span>Total Payable:</span>
+                            <span id="totalPayableText" th:text="'Rs. ' + ${totalPaid}">Rs. 75.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center; margin-top: 20px;">
+                    Confirm Payment & Checkout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Embedded JS calculator for instantaneous, responsive calculations -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const bookedExitString = /*[[${reservation.bookedExitTime.toString()}]]*/ '';
+    const baseCost = /*[[${reservation.totalCost}]]*/ 0.0;
+    const needValet = /*[[${reservation.needValet}]]*/ false;
+    const gracePeriod = /*[[${gracePeriodMinutes}]]*/ 15;
+    const ratePerHour = /*[[${overtimeRatePerHour}]]*/ 40.0;
+    /*]]>*/
+
+    const bookedExitDate = new Date(bookedExitString);
+
+    function calculateOvertime() {
+        const inputVal = document.getElementById('actualExitTime').value;
+        if (!inputVal) return;
+
+        const actualExitDate = new Date(inputVal);
+        const diffMs = actualExitDate - bookedExitDate;
+        const diffMins = Math.floor(diffMs / 60000);
+
+        let extraDurationStr = "0 mins";
+        let overtimeCharge = 0.0;
+
+        if (diffMins > 0) {
+            const hours = Math.floor(diffMins / 60);
+            const mins = diffMins % 60;
+            extraDurationStr = `${hours}h ${mins}m`;
+
+            if (diffMins > gracePeriod) {
+                // If extra time is less than one hour after the grace period, charge for one full hour
+                const chargeableHours = Math.ceil(diffMins / 60);
+                overtimeCharge = chargeableHours * ratePerHour;
+            }
+        }
+
+        const valetCost = needValet ? 50.0 : 0.0;
+        const totalPayable = baseCost + overtimeCharge + valetCost;
+
+        // Render values
+        document.getElementById('extraDurationText').textContent = extraDurationStr;
+        document.getElementById('overtimeChargeText').textContent = `Rs. ${overtimeCharge.toFixed(2)}`;
+        document.getElementById('totalPayableText').textContent = `Rs. ${totalPayable.toFixed(2)}`;
+    }
+
+    // Call initially to render default state
+    document.addEventListener('DOMContentLoaded', () => {
+        calculateOvertime();
+    });
+</script>
+</body>
+</html>

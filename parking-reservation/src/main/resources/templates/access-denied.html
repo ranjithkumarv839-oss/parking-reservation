@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Access Denied')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="auth-wrap">
+    <div class="auth-card" style="width: 420px; border-color: var(--red);">
+        <div class="stripe-top" style="background: repeating-linear-gradient(-45deg, var(--red), var(--red) 10px, var(--asphalt) 10px, var(--asphalt) 20px);"></div>
+        <div class="inner" style="text-align: center;">
+            <h2 style="color: var(--red);">Access Denied</h2>
+            <p class="sub" style="margin-top: 10px; margin-bottom: 24px;">You do not have authorization to view this admin panel.</p>
+            <a th:href="@{/}" class="btn btn-outline" style="width: 100%; border-color: var(--red); color: var(--red);">Return to Home</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

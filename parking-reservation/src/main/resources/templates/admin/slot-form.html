@@ -1,0 +1,77 @@
+<!-- File: src/main/resources/templates/admin/slot-form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Slot Form')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+<div class="auth-wrap">
+    <div class="auth-card" style="width:420px;">
+        <div class="stripe-top"></div>
+        <div class="inner">
+            <h2 th:text="${slot.id == null} ? 'Add New Slot' : 'Edit Slot'">Add New Slot</h2>
+            <form th:action="@{/admin/slots/save}" th:object="${slot}" method="post" style="margin-top:20px;">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" id="fullLocation" th:field="*{location}">
+                <div class="field-group">
+                    <label for="lotName">Parking Lot</label>
+                    <select id="lotName" name="lotName" style="width: 100%; background: var(--asphalt); border: 1px solid #444; color: var(--chalk); padding: 12px 14px; border-radius: 4px;" required>
+                        <option value="ParkPoint Main Lot">ParkPoint Main Lot</option>
+                        <option value="ParkPoint Plaza Lot">ParkPoint Plaza Lot</option>
+                        <option value="ParkPoint Express Lot">ParkPoint Express Lot</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="parkingFloor">Parking Floor</label>
+                    <select id="parkingFloor" name="parkingFloor" style="width: 100%; background: var(--asphalt); border: 1px solid #444; color: var(--chalk); padding: 12px 14px; border-radius: 4px;" required>
+                        <option value="Ground">Ground</option>
+                        <option value="Level 1">Level 1</option>
+                        <option value="Level 2">Level 2</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="slotNumber">Slot Number</label>
+                    <input type="text" id="slotNumber" th:field="*{slotNumber}" placeholder="A-12" required>
+                </div>
+                <div class="field-group">
+                    <label for="pricePerHour">Price per Hour</label>
+                    <input type="number" step="0.01" id="pricePerHour" th:field="*{pricePerHour}" placeholder="20.00" required> </div>
+                <div class="field-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <input type="checkbox" id="evCharging" th:field="*{evCharging}" style="accent-color:var(--yellow); width:18px; height:18px; cursor:pointer;">
+                    <label for="evCharging" style="margin-bottom:0; cursor:pointer; text-transform:none; font-size:13px; font-weight: normal; color: var(--chalk);">
+                        ⚡ EV Charging Station Available
+                    </label>
+                </div>
+                <div class="field-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+                    <input type="checkbox" id="disabilitySlot" th:field="*{disabilitySlot}" style="accent-color:var(--yellow); width:18px; height:18px; cursor:pointer;">
+                    <label for="disabilitySlot" style="margin-bottom:0; cursor:pointer; text-transform:none; font-size:13px; font-weight: normal; color: var(--chalk);">
+                        ♿ Disability / Priority Parking Space
+                    </label>
+                </div>
+                <div class="field-group">
+                    <label for="status">Status</label>
+                    <select id="status" th:field="*{status}" style="width: 100%; background: var(--asphalt); border: 1px solid #444; color: var(--chalk); padding: 12px 14px; border-radius: 4px;">
+                        <option value="AVAILABLE">Available</option>
+                        <option value="RESERVED">Reserved</option>
+                        <option value="OCCUPIED">Occupied</option>
+                        <option value="UNDER_MAINTENANCE">Under Maintenance</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Save Slot</button>
+            </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const fullLoc = document.getElementById('fullLocation').value;
+                    if (fullLoc) {
+                        const parts = fullLoc.split(' - ');
+                        if (parts.length >= 2) {
+                            document.getElementById('lotName').value = parts[0];
+                            document.getElementById('parkingFloor').value = parts[1];
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+</body>
+</html>
